@@ -1,0 +1,5 @@
+Esto literal una encriptacion con Vigenere, nos dan la llave y el texto encriptado:
+
+Entonces ahora solo buscamos un decoder de Vigenere y el flag seria el siguiente:
+
+picoCTF{D0NT_US3_V1G3N3R3_C1PH3R_ae82272q}

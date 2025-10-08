@@ -1,0 +1,10 @@
+Esto es un format string, Entonces creamos un exploit que me iteres sobre lo siguiente:
+
+i in range(65):
+	'%' + str(i) + '$s'
+
+Entonces empezamos a iterar sobre el input. Y queremos que se detenga cuando encuentre lo siguiente:
+
+b'CTF'
+
+Y nos retorna el flag

@@ -1,0 +1,44 @@
+Okey aqui lo que tenemos es un caso tipico de Integer Overflow. Vea lo que nos esta diciendo el reto:
+
+n1 > n1 + n2 OR n2 > n1 + n2 
+What two positive numbers can make this possible:
+
+Entonces, en que caso la suma de 2 numeros va a ser menor a cualquiera de esos numeros. Revisemos el codigo.
+
+	if (addIntOvf(sum, num1, num2) == 0) {
+            printf("No overflow\n");
+            fflush(stdout);
+            exit(0);
+        } else if (addIntOvf(sum, num1, num2) == -1) {
+            printf("You have an integer overflow\n");
+            fflush(stdout);
+        }
+
+Si la funcion addIntOvf devuelve 0 el programa termina y no tenemos el flag pero si nos de -1 podemos seguir a la
+siguiente codigo.
+
+        if (num1 > 0 || num2 > 0) {
+            flag = fopen("flag.txt","r");
+            if(flag == NULL){
+                printf("flag not found: please run this on the server\n");
+                fflush(stdout);
+                exit(0);
+            }
+
+Si los 2 numeros son positivos tenemos el flag. Revisemos la funcion addIntOvf.
+
+    result = a + b;
+    if(a > 0 && b > 0 && result < 0)
+        return -1;
+    if(a < 0 && b < 0 && result > 0)
+        return -1;
+    return 0;
+
+Lo que estamos viendo aqui es un tipico Integer Overflow. C solo soporta int de 32 bits con signo, el numero 
+positivo mas grande que soporta es 2^31 - 1, entonces si escribimos ese numero y le sumamos 1, la suma nos va a 
+dar 0, ya que estamos generando un Integer overflow.
+
+2147483647 1
+You entered 2147483647 and 1
+You have an integer overflow
+YOUR FLAG IS: picoCTF{Tw0_Sum_Integer_Bu773R_0v3rfl0w_76f333c8}

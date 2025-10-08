@@ -1,0 +1,26 @@
+Tenemos que sobreescribir la variable num, que es una variable local de la funcion main, entonces esta en la pila.
+Tenemos que darle el valor de 65, que en string seria 0xA, entonces tenemos que encontrar el buffer y sobreescribir.
+
+Analizamos el binario, y analizamos el ensamblador.
+
+1-endbr64
+2-push %rbp
+3-mov %rsp, %rbp
+4-sub $0x20, %rsp
+5-movl $0x40, -0x8(%rbp)
+
+Las instrucciones importantes son las 4 y 5, en la instruccion 4 se guardan 32 bytes para las variables locales.
+Y en la 5 se le esta asignando la variable 0x40 (64 en decimal), que la direccion de memoria donde se coloca es
+de 32 bytes - 8 bytes, entonces ya tenemos el buffer, que serian de 24 bytes. Realizamos el payload.
+
+012345678901234567890123A
+
+Y tenemos la flag.
+
+num is 65
+You win!
+picoCTF{l0c4l5_1n_5c0p3_fee8ef05}
+
+Todo esto se puede hacer ya que para agarrar el input que nosotros le damos al programa, se utiliza la funcion
+gets(), que es propensa a buffer overflows, incluso su misma documentacion lo dice. Ya que no valida el largo del
+input.

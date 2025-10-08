@@ -1,0 +1,22 @@
+En el codigo fuente se nos muestra que tenemos que pasar una direccion a una funcion dentro del programa.
+Entonces vemos la funcion win como objetivo.
+
+Primero analizamos si existe alguna defensa activa para el binario.
+
+    Arch:       amd64-64-little
+    RELRO:      Partial RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        No PIE (0x400000)
+    SHSTK:      Enabled
+    IBT:        Enabled
+    Stripped:   No
+
+PIE no esta activo, entonces podemos tomar la direccion ya que va a ser la misma tanto local como en el server.
+Buscamos con gdb la direccion y hacemos un disas a win y encontramos la direccion.
+
+0x000000000040129e
+
+El programa nos dice que la pasemos sin el '0x' entonces hacemos caso. Escribimos la direccion y tenemos el flag:
+
+picoCTF{n3v3r_jump_t0_u53r_5uppl13d_4ddr35535_b8de1af4}

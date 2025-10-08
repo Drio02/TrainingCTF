@@ -1,0 +1,69 @@
+Empezamos viendo que es un tipo juego. Tenemos que el mapa y una meta, si llegamos a la meta ganamos pero no nos dan
+el flag, entonces esta raro. Entonces vemos el codigo en Ghidra:
+
+undefined4 main(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  int in_GS_OFFSET;
+  int X_CORD;
+  int Y_CORD;
+  char WIN_VARIABLE;
+  undefined1 map [2700];
+  int local_14;
+  undefined1 *local_10;
+  
+  local_10 = &stack0x00000004;
+  local_14 = *(int *)(in_GS_OFFSET + 20);
+  init_player(&X_CORD);
+  init_map(map,&X_CORD);
+  print_map(map,&X_CORD);
+  signal(2,sigint_handler);
+  do {
+    do {
+      iVar1 = getchar();
+      move_player(&X_CORD,(int)(char)iVar1,map);
+      print_map(map,&X_CORD);
+    } while (X_CORD != 29);
+  } while (Y_CORD != 89);
+  puts("You win!");
+  if (WIN_VARIABLE != '\0') {
+    puts("flage");
+    win();
+    fflush(_stdout);
+  }
+  uVar2 = 0;
+  if (local_14 != *(int *)(in_GS_OFFSET + 0x14)) {
+    uVar2 = __stack_chk_fail_local();
+  }
+  return uVar2;
+}
+
+Despues de darle otro nombre a las variables, empezamos a hacer el analisis. Empezamos a investigar y 
+logramos encontrar puede suceder un desface mental a nivel del orden que estan definidas las variables y 
+su posicion en la pila, ya que no necesariamente tienen un orden textual. Entonces por ejemplo, un arreglo
+muy grande (como map[2700]) suelen colocarse al fondo del frame, la posicion mas baja. Las variables pequeñas como 
+WIN_VARIABLE quedan despues del arreglo en terminos de posicion de memoria (mas cerca del `rbp` y `ebp)`
+, lo podemo ver mejor con un grafico:
+
+[ saved RIP ]
+[ saved RBP ]
+[ canary ]            <-- local_14 participa aquí
+[ locals pequeños ]   <-- WIN_VARIABLE, X_CORD, Y_CORD, etc.
+[ padding/alineación ]
+[ map[2700] ]         <-- direcciones más bajas
+
+Si escribes mas alla del map, primero llegamos al las variables locales (entre ellas WIN_VARIABLE), despues el canary
+y lo que le sigue.
+
+*Investigar el porque del OFFSET y porque se sabe que el local_14 es el canary
+
+Entonces si llegamos a tocar unos cuantos bytes del WIN_VARIABLE vamos a ganar, lo intentamos.
+
+Tenemos que ponernos al puro inicio y darle 'aaaa'.
+
+*Investigar porque solo con la a funciona
+
+picoCTF{gamer_m0d3_enabled_8985ce0e}
+

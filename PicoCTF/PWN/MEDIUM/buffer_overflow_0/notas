@@ -1,0 +1,24 @@
+Okey lo que tenemos es un buffer Overflow comun y silvestre, notamos lo siguiente:
+
+void vuln(char *input){
+  char buf2[16];
+  strcpy(buf2, input);
+}
+
+Notamos el flujo va a llegar a esta funcion. Despues vemos lo siguiente:
+
+signal(SIGSEGV, sigsegv_handler); // Set up signal handler
+
+void sigsegv_handler(int sig) {
+  printf("%s\n", flag);
+  fflush(stdout);
+  exit(1);
+}
+
+Notamos que cuando se haga un SIGSEV se va disparar esa funcion y me va a imprimir la flag. Entonces empezamos
+a hacer el buffer overflow. Entonces vemos que ese buffer es de 16. De vez en cuando se necesitan 4 bytes mas para
+ocasionar un SIGSEV.
+
+
+Input: aaaaaaaaaaaaaaaaaaaa
+picoCTF{ov3rfl0ws_ar3nt_that_bad_9f2364bc}

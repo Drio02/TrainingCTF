@@ -1,0 +1,35 @@
+En este caso tenemos un programa que tiene 2 variables en el heap *safe_var* y *input_var*, en ellas se guardan 
+los valores de "bico" y "pico" respectivamente. En la funcion check_win() se valida si en *safe_var* esta el valor
+"bico", si esta no pasa nada, pero si es diferente, imprime el flag.
+
+El reto es poder sobreescribir *safe_var*, y darle cualquier otro valor, yo lo que voy a hacer es intetentar
+sobreescribir la variable con "pico".
+
+Notamos que cuando escribimos en el buffer se usa la siguiente instruccion:
+
+scanf("%s", input_data);
+
+En este caso, scanf() es una funcion que es propensa a overflows, porque no esta validando la cantidad de data que va
+a leer. Despues de varias pruebas, obtuvimos que el siguiente string nos permite sobreescribir *safe_var*:
+
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapico
+
+Ahora al ejecutar el check_win() nos da el flag:
+
+picoCTF{my_first_heap_overflow_749119de}
+
+Nota:
+
+Sabemos que las variables esta en el heap, porque se esta guardando la memoria con malloc(), entonces sabemos que
+esta en el heap, por ende las memorias son adyacentes, si nos queda dudas el programa nos imprimia el heap:
+
+Heap State:
++-------------+----------------+
+[*] Address   ->   Heap Data   
++-------------+----------------+
+[*]   0x5a18b68162b0  ->   pico
++-------------+----------------+
+[*]   0x5a18b68162d0  ->   bico
++-------------+----------------+
+
+Si notamos las direcciones de memoria, son adyacentes.

@@ -1,0 +1,22 @@
+# Soluciòn
+
+Inicializa un struct x, que tiene un atributo flag, ese atributo hay que renombrarlo con 
+"pico" para ganar. Basicamente para llegar a la memoria de ese flag, pide primero,
+30 bytes y los proximos 5 bytes son del flag.
+
+Entonces se libera la memoria, despues se coloca otro objeto, se dice que se reservan 35 bytes. Entonces
+despues pide datos, le metemos el siguiente string:
+
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaapico
+
+Que me rellena con basura los primeros 30 bytes y despues me coloca pico justo donde lo quiero, en flag. Entonces ya 
+despues elegimos la opcion check_win y obtenemos el flag:
+
+YOU WIN!!11!!
+picoCTF{now_thats_free_real_estate_e8938a97}
+
+
+En el menu hay una opciòn de free memory, bàsicamente libera la memoria de ese struct,
+ahì hay una debilidad la CWE-416 USE AFTER FREE, porque despues yo puedo inicializar otro struct
+solicitar 35 bytes para el, lleno de basura los primeros 30 bytes y despies escribo pico
+Y asì obtengo el flag.

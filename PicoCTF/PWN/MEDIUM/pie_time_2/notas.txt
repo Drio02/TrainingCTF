@@ -1,0 +1,46 @@
+Nos conectamos por medio de netcat al reto. La salida del programa nos pide el nombre y despues nos pide una direccion
+vamos a revisar el codigo fuente. Notamos que cuando nos pide el nombre hace lo siguiente:
+
+  printf("Enter your name:");
+  fgets(buffer, 64, stdin);
+  printf(buffer);
+
+Notamos en la tercera linea que tenemos una debilidad de format string. Entonces lo que vamos a tratar de hacer
+es hacer un leak de una direccion de memoria para calcular la diferencia y conseguir la direccion donde empieza 
+la funcion win() que es la que nos interesa. Con *gdb* debugeamos el binario y le hacemos un disassemble tanto a
+win() como a main().
+
+Direccion de memoria win() local -> 0x000000000000136a
+
+Tenemos la direccion de win(), ahora vamos haciendo leaks en el server que el tail de la direccion pegue con alguna
+tail en alguna direccion que tenga la funcion main(), para hacer leaks uno hace %[numero]$p, que que hace este
+comando:
+
+Imprime el puntero (direccion de memoria en formato hexadecimal) en la posicion de la pila que uno le especifica.
+
+Con esto vamos haciendo leaks de direcciones hastq que pegue con una que necesitamos. Encontrams una que nos sirve,
+es %19$p. A nivel local tenemos 
+
+Direccion de memoria de main() local -> 0x0000000000001441
+
+Calculamos la diferencia de estas direcciones y es:
+
+Diferencia -> D7
+
+En el server teniamos la siguiente direccion:
+
+Direccion de memoria main() server -> 0x638b30492441
+
+Hacemos la operacion con la diferencia y le pasamos la direccion y tenemos lo siguiente:
+
+Direccion de memoria win() server -> 0x638B3049236A
+
+Enter your name:%19$p
+0x638b30492441
+ enter the address to jump to, ex => 0x12345: 0x638B3049236A
+You won!
+picoCTF{p13_5h0u1dn'7_134k_2718fe04}
+
+Y ya tendriamos el flag
+
+PD: Puedes hacer un exploit con pwntools para practicar, ya que tienes el offset.

