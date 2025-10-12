@@ -1,0 +1,15 @@
+OKey me dan un archivo donde el flag viene cifrado, le hago un cat y me da lo siguiente:
+
+YidkM0JxZGtwQlRYdHFhR3g2YUhsZmF6TnFlVGwzWVROclgyeG9OakJzTURCcGZRPT0nCg==
+
+Por los signos de = me da indicio de que fue codificado con base64, entonces procedo ir a Cyberchef y al decodificarlo me da lo siguiente:
+
+b'd3BqdkpBTXtqaGx6aHlfazNqeTl3YTNrX2xoNjBsMDBpfQ=='
+
+Entonces de nuevo base64, solo agarro el string y vuelvo a decodificar base64:
+
+wpjvJAM{jhlzhy_k3jy9wa3k_lh60l00i}
+
+Eso me da indicio de que es cifrado cesar, ya que estoy viendo un desplazamiento de 7 en cada letram entonces busco un decoder en linea y me da lo siguiente:
+
+	picoCTF{caesar_d3cr9pt3d_ea60e00b}

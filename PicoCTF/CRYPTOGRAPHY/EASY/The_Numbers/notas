@@ -1,0 +1,13 @@
+Okey aqui lo que me dan es una imagen con una secuencia de numeros que se parece mucho a la estructura del flag picoctf{}, solo que en vez de las letras van numeros
+despues de analizar unos minutos me di cuenta que son las posiciones de la letra en el alfabeto en ingles, entonces le dije a chatgpt el siguiente prompt
+porque me dio pereza hacer el script en python:
+
+Tengo lo siguiente: 
+
+16 9 3 15 3 20 6 { 20 8 5 14 21 13 2 5 18 19 13 1 19 15 14} 
+
+Este es un mensaje codificado, los numeros son las posiciones de la letra en el alfabeto del ingles empezando desde 1 = a, traduceme el mensaje por favor
+
+Y me dio el flag el cual es el siguiente:
+
+picoctf{thenumbersmason}

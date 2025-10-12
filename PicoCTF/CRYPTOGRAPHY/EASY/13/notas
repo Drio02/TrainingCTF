@@ -1,0 +1,11 @@
+EN este reto me decias que si conocia ROT13, entonces investigue que era y me salio lo siguiente:
+
+ROT13 es un sencillo cifrado César utilizado para ocultar un texto sustituyendo cada letra por la letra que está trece posiciones por delante en el alfabeto.
+
+Entonces basicamente es una variantes de Cesar, lo cual no es tan complicado ya que es un algoritmo de cifrado monoalfabeto.
+
+Entonces simplemente busque un decoder de ROT13 en linea y pegue el flag:
+
+CipherText -> cvpbPGS{abg_gbb_onq_bs_n_ceboyrz}
+
+PlainText -> picoCTF{not_too_bad_of_a_problem}

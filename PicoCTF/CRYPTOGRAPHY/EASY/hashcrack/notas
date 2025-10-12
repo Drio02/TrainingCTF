@@ -1,0 +1,79 @@
+OKey en este reto no daban un netcat para conectarnos a un servidor, entonces lo ejecutamos en la terminal y nos
+sale lo siguiente:
+
+Welcome!! Looking For the Secret?
+
+We have identified a hash: 482c811da5d5b4bc6d497ffa98491e38
+Enter the password for identified hash:
+
+Okey vemos que es un hash, vamos a investigar la longitud del hash con el siguiente comando por la termiinal:
+
+echo -n "482c811da5d5b4bc6d497ffa98491e38" | wc -c 
+Output: 32
+
+Entonces por la longitud nos indica que es un hash MD5, investigamos y vamos a usar John The Ripper para mapear
+la posible contrasena, entoncesd ejecutamos el siguiente comando:
+
+Guardamos el hash en un arhivo "hashmd5.txt"
+
+Tenemos que tener el diccionario rockyou.txt instalado
+
+john --format=raw-md5 --wordlist=~/.wordlists/rockyou.txt hashmd5.txt
+Output: password123      (?)  
+
+Intentamos y tenemos lo siguiente:
+
+
+Welcome!! Looking For the Secret?
+
+We have identified a hash: 482c811da5d5b4bc6d497ffa98491e38
+Enter the password for identified hash: password123
+Correct! You've cracked the MD5 hash with no secret found!
+
+Flag is yet to be revealed!! Crack this hash: b7a875fc1ea228b9061041b7cec4bd3c52ab3ce3
+Enter the password for the identified hash:
+
+Okey misma dinamica, despues de investigar vemos que es un Sha-1 entonces hacemos el mismo procedimiento con john
+solo cambiando el formato:
+
+john --format=raw-sha1 --wordlist=~/.wordlists/rockyou.txt hash.txt
+Output: letmein          (?) 
+
+Probamos y tenemos lo siguiente:
+
+Welcome!! Looking For the Secret?
+
+We have identified a hash: 482c811da5d5b4bc6d497ffa98491e38
+Enter the password for identified hash: password123
+Correct! You've cracked the MD5 hash with no secret found!
+
+Flag is yet to be revealed!! Crack this hash: b7a875fc1ea228b9061041b7cec4bd3c52ab3ce3
+Enter the password for the identified hash: letmein
+Correct! You've cracked the SHA-1 hash with no secret found!
+
+Almost there!! Crack this hash: 916e8c4f79b25028c9e467f1eb8eee6d6bbdff965f9928310ad30a8d88697745
+Enter the password for the identified hash:
+
+Misma dinamica, investigamos y definimos que es un Sha-256 plano, entonces igual con John:
+
+john --format=raw-sha256 --wordlist=~/.wordlists/rockyou.txt hash256.txt
+Output: qwerty098        (?)
+
+Probamos:
+
+Welcome!! Looking For the Secret?
+
+We have identified a hash: 482c811da5d5b4bc6d497ffa98491e38
+Enter the password for identified hash: password123
+Correct! You've cracked the MD5 hash with no secret found!
+
+Flag is yet to be revealed!! Crack this hash: b7a875fc1ea228b9061041b7cec4bd3c52ab3ce3
+Enter the password for the identified hash: letmein
+Correct! You've cracked the SHA-1 hash with no secret found!
+
+Almost there!! Crack this hash: 916e8c4f79b25028c9e467f1eb8eee6d6bbdff965f9928310ad30a8d88697745
+Enter the password for the identified hash: qwerty098
+Correct! You've cracked the SHA-256 hash with a secret found. 
+The flag is: picoCTF{UseStr0nG_h@shEs_&PaSswDs!_6965e43b}
+
+Tenemos el flag

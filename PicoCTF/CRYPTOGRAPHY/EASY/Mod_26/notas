@@ -1,0 +1,7 @@
+Okey al parecer aqui tengo de nuevo un caso de Rot13 por la descripcion del reto que me lo menciona, el nombere no es muy explicito:
+
+Entonces igual busque un decoder de Rot13 en linea y decodifique el flag.
+
+CipherText -> cvpbPGS{arkg_gvzr_V'yy_gel_2_ebhaqf_bs_ebg13_uJdSftmh}
+
+PlainText -> picoCTF{next_time_I'll_try_2_rounds_of_rot13_hWqFsgzu}
