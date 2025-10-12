@@ -1,0 +1,123 @@
+Okey aqui lo que nos dan es un netcat para conectarnos a un servidor y nos dan el codigo fuente del algoritmo para encriptar que se utiliza, investiguemos primero el algoritmo que esta en encrypt.py:
+
+from sys import exit
+from Crypto.Util.number import bytes_to_long, inverse
+from setup import get_primes <- Note que este get_primes viene de 'setup' eso nos indica que es un algoritmo custom que puede que tengas malas practicas. Lo mejor es usar algorimtos que ya esten hechos
+
+e = 65537
+
+def gen_key(k):
+    """
+    Generates RSA key with k bits
+    """
+    p,q = get_primes(k//2) <- Otra cosa que vemos es que los bytes de los primos son muy pequenos 1024 // 2 -> 512 bits por primo, eso cae en que el N -> 1024 bits, se recomienda minimo 2052 bits, sino el vulnerable a fuerza bruta
+    N = p*q
+    d = inverse(e, (p-1)*(q-1))
+
+    return ((N,e), d)
+
+def encrypt(pubkey, m):
+    N,e = pubkey
+    return pow(bytes_to_long(m.encode('utf-8')), e, N)
+
+def main(flag):
+    pubkey, _privkey = gen_key(1024)
+    encrypted = encrypt(pubkey, flag) 
+    return (pubkey[0], encrypted)
+
+if __name__ == "__main__":
+    flag = open('flag.txt', 'r').read()
+    flag = flag.strip()
+    N, cypher  = main(flag)
+    print("N:", N)
+    print("e:", e)
+    print("cyphertext:", cypher)
+    exit()
+
+Okey por las notas que sacamos vamos a intentar obtener si se esta reutilizando primos a la hora de generar el public key, entonces ejecutamos el netcat:
+
+nc verbal-sleep.picoctf.net 62424
+N: 26189495284349515285535322330372183933003710502085661757120751712344304886830930131294765462902162198925225600643512018216161081035619895583465998528267118 -> N1
+e: 65537
+cyphertext: 6869457241246646562420305046144594916933008964522915536525486458132421697960032198977742293981036484280998894080704231975734950567217827208207221134856047 -> c1 (lo que vamos a desencriptar)
+
+Okey de aqui obtenemos lo que anotamos arriba. Volvemos a ejecutar solamente para obtener el siguiente llave publica:
+
+nc verbal-sleep.picoctf.net 62424
+N: 19051033118429494822143197496259967993519808413053993311862076490799636140061149794254361318288281324858021871671869661787907936800602111461866838844505842 -> N2
+e: 65537
+cyphertext: 12061958834647552992901557110783831598077641729633767673105816406052774296907316244966230210068032240268909530152807939764430768104972715710856790568513577
+
+Okey a partir de aqui todo lo vamos a hacer con las shell de python, vamos a aplicar GCD para obtener si se esta reutilizando primos a N1 y N2:
+
+>>> import math
+>>> from Crypto.Util.number import inverse, long_to_bytes
+>>> N1 = 26189495284349515285535322330372183933003710502085661757120751712344304886830930131294765462902162198925225600643512018216161081035619895583465998528267118
+>>> N2 = 19051033118429494822143197496259967993519808413053993311862076490799636140061149794254361318288281324858021871671869661787907936800602111461866838844505842
+
+>>> p = math.gcd(N1, N2)
+>>> p
+2
+
+OKey notemos que estamos obteniendo un valor diferente a != 1, entonces BINGO, se esta reutilizando primos en este caso 2. Esto funciona ya que RSA calcula la llave publica de ;la siguiente manera:
+
+N = p⋅q ; donde p y q son primos. Si las claves reusan p entonces se hace lo siguiente:
+
+N1 = p⋅q_{1} N2 = p⋅q_{2}
+
+Por eso GCD toma el p, ya que p divide a N1 y N2.
+
+Una vez teniendo p, simplemente sigue seguir una cierta cantidad de pasos para hacer reverse al algoritmo y obtener la llave privada. entonces calculamos q1 = N1 // p:
+
+>>> q1 = N1 // p
+
+AL obtener eso calculamos φ(N1​) = (p -1)(q1 - 1):
+
+>>> phil = (p - 1) * (q1 - 1)
+>>> phil
+13094747642174757642767661165186091966501855251042830878560375856172152443415465065647382731451081099462612800321756009108080540517809947791732999264133558
+
+Mas adelante tenemos que calcular el inverso modular de e mod phil, entonces verificamos que gcd(e, phil) = 1, sino el ataque no nos va a servir (esto se saca por teoria de EGCD):
+
+>>> math.gcd(e, phil)
+1
+
+Perfecto, vemos que si existe entonces calculamos el inverso modular de e mod phil, se puede sacar de 2 formas:
+
+1. 
+>>> d1 = inverse(e, phil)
+>>> d1
+12935301701432040450968698844515043529904689062625109911151260700867128141878233560964736113209508206022706106169494518724507165609998904589605911765273699
+
+o
+
+2.
+
+>>> d1 = pow(e, -1, phil)
+12935301701432040450968698844515043529904689062625109911151260700867128141878233560964736113209508206022706106169494518724507165609998904589605911765273699
+
+Ahora al tener la llave privada, vamos a desencriptar el c1, de la siguiente forma:
+
+>>> c1 = 6869457241246646562420305046144594916933008964522915536525486458132421697960032198977742293981036484280998894080704231975734950567217827208207221134856047
+>>> message_long = pow(c1, d1, N1)
+
+Okey ya tenemos el mensaje pero no lo tenemos en un formato que se legible para nosotros entonces ahora los transformamos a utf-8 y tenemos los siguiente:
+
+>>> flag_bytes = long_to_bytes(message_long)
+>>> flag = flag_bytes.decode('utf-8')
+>>> flag
+'picoCTF{tw0_1$_pr!m31c9046c4}'
+
+Y walla tenemos el flag, aunque diga que el reto es easy si hay que tenemos conocimientos claros de como funciona RSA, GCD y entender un poco de aritmetica modular.
+
+Nos queda de aprendizaje lo siguiente:
+
+Este reto nos muestra una brecha muy comun en la implementacion de RSA -> insecure prime number generation. Si los primos no son random y unicos para cada par de llaves, se puede comprometer todo el sistema.
+
+Entonces:
+
+- Confia en el ranmos, pero siempre verifica que funciona (en nuestro caso de atacante siempre podemos verificar si se estan reutilizando primos, para tener una brecha de ataque mas rapdida)
+- Como dije, siempre revisa, entiende bien como funciona GCD y EGCD, pueden ser tus mejores aliados en estos casos
+
+Este writeup fue parcialmente basado en el siguiente:
+https://medium.com/@ibnuilham/even-rsa-can-be-broken-348c8455db50
