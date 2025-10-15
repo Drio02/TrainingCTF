@@ -1,0 +1,5 @@
+El reto por el nombre me daba indicio de un algoritmo de encriptacion por substitucion por el nombre, entonces abri el mensaje y salia en la primera linea un mensaje muy extrano, como un alfabeto.
+
+Entonces probe usar eso como un diccionario de subtitucion, lo probe en la siguiente pagina https://www.dcode.fr/monoalphabetic-substitution y me dio lo siguiente:
+
+PICOCTF{5UB5717U710N_3V0LU710N_03055505}
