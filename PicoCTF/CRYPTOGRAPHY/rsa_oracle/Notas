@@ -1,0 +1,40 @@
+Okey primero para este reto vamos a investigar lo que es la propiedad homomorfica. Es lo siguiente:
+
+La capacidad de realizar operaciones matematicas en datos cifrados y obtener un resultado que, al se descifrado, sea identico al resultado que se obtendria al operar con los datos originales sin cifrar.
+
+Entonces eso hace que podemos realizar operaciones complementamente sobre los datos cifrados sin tener que descifrarlos.
+
+Se puede considerar una extension de la criptogradia de clave publica.
+
+Veamos por ejemplos a que nos referimos con cifrado homomorfico en el contexto de RSA:
+
+Supongamos que la clave publica de RSA tiene modulo n y exponente del cifrado e. Si ciframos un mensaje m tenemos RSA(m) = m^{e} mod n. LA propiedad homomorfica es la siguiente:
+
+RSA(m1) * RSA(m2) = m1^{e} * m2^{e} mod n
+		  = (m1*m2)^{e} mod n
+		  = RSA(m1*m2)
+
+Entonces, enfoquemonos ahora en el reto, ya tenemos la teoria que ocupamos. 
+
+Nos estan dando c1 = ENC(m1) y podemos escoger el m2. 
+
+Entonces al pasar el m2 vamosa a obtener c2 = Enc(m2).
+
+Si computamos c3 = c1 * c2, entonces vamos a tener c3 = Enc(m1) * Enc(m2) = Enc(m1 * m2) por la propiedad homomorfica.
+
+Pero eso tambien quiere decir que si nosotros pasamos c3 al modo de desencriptacion del oraculom vamos a tener m3 = Dec(c3) = Dec(Enc(m1 * m2)) = m1 * m2.
+
+Pero, como nosotros escogemos m2, podemos descubrir m1 computando m1 = (m3/m2)!
+
+Con este enfoque podemos desencriptar el `password.enc` y con eso en mano podemos desencriptar `secret.enc` usando el siguiente comando:
+
+openssl enc -ase-256-cbc -d -int secret.enc -pass pass:<password> -> Buscar que hace este comando
+
+Entonces empezamos a construir el exploit, no va a ser un exploit automatico, vamos a irlo trabajando.
+
+El expoit se encuentra documentado en la misma carpeta, la flag seria:
+
+
+picoCTF{su((3ss_(r@ck1ng_r3@_da099d93}
+
+* Falta extender explicacion en el codigo en 2 lineas que me faltan por documentar
