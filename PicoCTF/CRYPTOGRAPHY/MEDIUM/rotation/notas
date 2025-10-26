@@ -1,0 +1,4 @@
+El reto solo nos da un una flag encriptada en un .txt y el titulo del reto nos dice "ROTATION" entonces por el titulo infiero que es el cifrado cesar, como no nos dicen el desplazamiento hago un brute force
+Busco una pagina para hacer brute force de cesar y encuentro la siguiente https://www.dcode.fr/cifrado-cesar, pego la flag y hago el brute force, el resultado es el siguiente:
+
+picoCTF{r0tat1on_d3crypt3d_a4b7d759}

@@ -1,0 +1,41 @@
+Okey en este reto nos daban 2 archivos, el primero era el archivo de ciphertext y el segundo donde venia el algoritmo de encriptacion, llamdo convert.py.
+
+Por analizar al algoritmo es un algoritmo de encriptacion ciclico, especificamente de substitucion.
+
+Este es un tipo de algoritmo que remplaza cada letra o caracter por otro en base a un alfabeto definido.
+
+En nuestro cado nosotros ya tenemos 2 alfabetos entonces esta facil hacer el reversing del algoritmo, lo codeamos lo guardamos en un archivo .py decoder.py, el output no es el flag como creaimos:
+
+#asciiorder
+#fortychars
+#selfinput
+#pythontwo
+
+chars = ""
+from fileinput import input
+for line in input():
+    chars += line
+b = 1 / 1
+
+for i in range(len(chars)):
+    if i == b * b * b:
+        print chars[i] #prints
+        b += 1 / 1
+
+Ese fue el output, al parecer es un script hecho en Python2, entonces lo reescribimos en Python3 y nos queda de la siguiente manera,
+
+with open("ciphertext", "r") as f:
+        c = f.read()
+
+b = 1
+flag = ""
+for i in range(len(c)):
+        if i == b * b * b:
+                flag += c[i]
+                b += 1
+
+print(f"picoCTF{{{flag}}}")
+
+Intentamos meter el cipher text como archivo de lectura pero no tenemos suerte, ya que no es el flag.
+
+Notamos un comentario que dice "#selfinput" entonces intentamos pasar como input el decoder2.py a ver que resultado nos da y obtenemos el flag.
