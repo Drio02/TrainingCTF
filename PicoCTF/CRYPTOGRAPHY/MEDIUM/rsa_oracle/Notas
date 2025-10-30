@@ -4,7 +4,7 @@ La capacidad de realizar operaciones matematicas en datos cifrados y obtener un 
 
 Entonces eso hace que podemos realizar operaciones complementamente sobre los datos cifrados sin tener que descifrarlos.
 
-Se puede considerar una extension de la criptogradia de clave publica.
+Se puede considerar una extension de la criptografia de clave publica.
 
 Veamos por ejemplos a que nos referimos con cifrado homomorfico en el contexto de RSA:
 
